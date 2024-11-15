@@ -1,6 +1,6 @@
 import csv
 
-#in this file I imported the .tsv file in PyCharm and made a dictionary out of it
+#in this file I imported the .tsv file with data about the actors who took part in the top1000 films in PyCharm and made a dictionary out of it
 
 actors_in_movies = {}
 
