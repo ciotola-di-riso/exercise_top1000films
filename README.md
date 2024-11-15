@@ -6,8 +6,8 @@ To help me with learning Python, a friend sent me two .tsv files with data about
 Working with this data, I have to answer three questions:
 
 1) Which actor has participated to the most films?
-B) Calculate the median of the number of actors in a film.
-C) Which actor has collaborated with the most actors?
+2) Calculate the median of the number of actors in a film.
+3) Which actor has collaborated with the most actors?
 
 For each question, you must provide the answer considering:
 - only the top 100
