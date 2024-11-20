@@ -1,21 +1,24 @@
 import csv
 
-#in this file I imported the .tsv file with data about the actors who took part in the top1000 films in PyCharm and made a dictionary out of it
-
 actors_in_movies = {}
 
 
-with open('[file_position]actors.tsv', 'r', encoding='utf-8') as file:
+with open('actors.tsv', 'r', encoding='utf-8') as file:
     file_to_import = csv.reader(file, delimiter='\t')
 
     for row in file_to_import:                          #iterate over each row in the file
         movie = row[0]                                  #movie title
-        actor_name = row[1]                             #name of the actor
+        actor_name = row[1]                             #name of the actors
         year = row[2]                                   #release year
-        actors_in_movies[movie] = {'actor': actor_name, 'released': year}    #add to dictionary with position as key and movie info as value
 
-actors_in_movies
+        if movie in actors_in_movies:                   #check if movie already exists in the dictionary
+            actors_in_movies[movie]['actors'].append(actor_name)
+        else:
+            actors_in_movies[movie] = {'actors': [actor_name], 'released': year}
 
-#IF I want the dictionary to be printed as 1 position and 1 movie per line, as string instead of dictionary
+
+#IF I want the dictionary to be printed as 1 position and 1 movie per line, as string instead of dictionary:
+
 #for movie, actor in actors_in_movies.items():       #iterating over items of the dictionary, returning key-value pairs
-    #print("{}: {}".format(movie, actor))           #format takes position and movie values and replaces {} with them
+    #print("{}: {}".format(movie, actor))            #format takes position and movie values and replaces {} with them
+
