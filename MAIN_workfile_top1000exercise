@@ -4,38 +4,98 @@ from actors_data import actors_in_movies
 # 1) Which actor has participated in the most films?
 # 2) Calculate the median of the number of actors in a film.
 # 3) Which actor has collaborated with the most actors?
-#For each question, answer considering: top 100 - top 200 - top 400 - top 600 - top 800 - top 1000
-
-#_________________________________QUESTION 1: actor in most films______________________________________________________#
-
-def get_top_x (top_x):
-    return {movie for pos, movie in top_1000_movies.items() if int(pos) <= top_x}
+# For each question, answer considering: top 100 - top 200 - top 400 - top 600 - top 800 - top 1000
 
 
-top_100 = get_top_x(100)
-top_200 = get_top_x(200)
-top_400 = get_top_x(400)
-top_600 = get_top_x(600)
-top_800 = get_top_x(800)
-top_1000 = get_top_x(1000)
+
+#_______________________________________MERGING DATA + DEBUGGING_______________________________________________________#
+# need to merge the two dictionaries so that I can see the film's position and the actors in it at the same time.
+
+top_1000_with_actors = {}
+
+for position, movie_title in top_1000_movies.items():                #iterate over top_1000_movies dictionary
+
+    if not movie_title.strip():                                      #skip positions with empty movie titles
+        print(f"Position {position} has an empty movie title and will be skipped.")
+        continue
+
+    if movie_title in actors_in_movies:                              #check if movie exists in actors_in_movies
+        movie_data = actors_in_movies[movie_title]                   #get the corresponding movie data (actors and year)
+        top_1000_with_actors[position] = {                           #add to the new dictionary the following:
+            'title': movie_title,                                                           #the movie title
+            'actors': movie_data['actors'],                                                 #the list of actors
+            'released': movie_data['released']                                              #the release year
+        }
+
+    else:                                                           #this never prints = all titles are in the dict.
+        print(f"Position {position}: Movie '{movie_title}' not found in actors_in_movies.")
 
 
-def appearance_counter():                                            #keeps track of actors' appearances in the top1000
-    actor_appearances = {}
+# ISSUE: If the first few positions (e.g., 1 to 37) have empty titles, they are skipped during the merging process, as
+#the merging logic explicitly avoids adding entries with no match. This creates gaps, leading to only valid data
+#from position 106 onwards being printed.
 
-    for movie in actors_in_movies.values():
-        actor_name = movie['actor']                    #keys in actors_in_movies are movies, inside each there's 2 other
-                                                        #keys, one is actor > value of the latter is set as 'actor_name'
-        if actor_name in actor_appearances:
-            actor_appearances[actor_name] += 1                            #if actor already has a counter, add +1 to it
-        else:                                                             #add a 1 counter appearance for each new actor
-            actor_appearances[actor_name] = 1
+# >changed code above, adding an if block that allows to skip positions with empty film titles
+# >tested the result with the print below
+for position, data in top_1000_with_actors.items():
+    title = data['title']
+    actors = ", ".join(data['actors'])                                     #list of actors into a comma-separated string
+    release_year = data['released']
 
-    top_actor = max(actor_appearances, key=actor_appearances.get)                                #found on Stackoverflow
-    top_count = actor_appearances[top_actor]
-    print(f"The actor who has worked in most films of the Top1000 is {top_actor} with {top_count} films.")
+    print(f"Position: {position}")
+    print(f"Title: {title}")
+    print(f"Actors: {actors}")
+    print(f"Year: {release_year}")
+    print("-" * 40)                                                            #separator for readability
 
-appearance_counter()
+#  still wrong! only prints from  position 35 onwards, but why? I told the for loop to print whenever it skips a line,
+# but it's not printing that sentence despite the empty lines. ChatGPT says it's either because:
+# - no titles are actually empty, despite looking that way to me;
+# - code never reaches that block
+# - unexpected formatting in the titles
+
+
+
+
+
+#___________________________________1 FUNCTION: getting a Top X________________________________________________________#
+
+# def get_top_x(top_x):
+#     top_x_movies = {}
+#
+#     for pos,movie in top_1000_movies.items():
+#         if int(pos) <= top_x:
+#             top_x_movies[pos] = movie
+#     return top_x_movies
+#
+#     #ALTERNATIVE WAY - LIST COMPREHENSION, writing everything on the same line, writing what you want to return first
+#     #return {pos:movie for pos, movie in top_1000_movies.items() if int(pos) <= top_x}
+#
+# top_100 = get_top_x(100)
+# top_200 = get_top_x(200)
+# top_400 = get_top_x(400)
+# top_600 = get_top_x(600)
+# top_800 = get_top_x(800)
+# top_1000 = get_top_x(1000)
+
+#______________________2 FUNCTION: getting a counter for actors' appearances in films__________________________________#
+
+
+# def appearance_counter():                                            #keeps track of actors' appearances in the top1000
+#     actor_appearances = {}
+#
+#     for movie in actors_in_movies.values():
+#         actor_name = movie['actors']                    #keys in actors_in_movies are movies, inside each there's 2 other
+#                                                         #keys, one is actor > value of the latter is set as 'actor_name'
+#         if actor_name in actor_appearances:
+#             actor_appearances[actor_name] += 1                            #if actor already has a counter, add +1 to it
+#         else:                                                             #add a 1 counter appearance for each new actor
+#             actor_appearances[actor_name] = 1
+#     top_actor = max(actor_appearances, key=actor_appearances.get)                                #found on Stackoverflow
+#     top_count = actor_appearances[top_actor]
+#     print(f"The actor who has worked in most films of the Top1000 is {top_actor} with {top_count} films.")
+#
+# appearance_counter()
 
 
 
@@ -45,41 +105,30 @@ appearance_counter()
 
 
 
-def appearances_in_top (top_x):
-    top_x_movies = get_top_x_movies(top_x)
-    actor_appearances = {}
-
-    for movie, details in actors_in_movies.items():         #iterates over movies (items) in actors_in_movies (dict)
-
-        if movie in top_x:                                  #checks if current movie is within specified top_x range
-            actor_name = details['actor']
-
-            actor_appearances[actor_name] = actor_appearances.get(actor_name,1) + 1
-            #creates counter (def.1) when new actor_name appears + increments it when mentioned in actor_appearances
-
-    top_actor = max(actor_appearances, key=actor_appearances.get)
-    top_count = actor_appearances[top_actor]
-    print(f"The actor who took part in most films in this Top Films is {top_actor} with {top_count} films.")
-
-
-appearances_in_top(top_100)
-appearances_in_top(top_200)
-appearances_in_top(top_400)
-appearances_in_top(top_600)
-appearances_in_top(top_800)
-appearances_in_top(top_1000)
-
-
-# BIG BUG: appearances_in_top(top_1000) and appearance_counter() give two different results. I asked ChatGPT, who said:
-# The discrepancy occurs because the two functions are iterating through and counting differentl:
-# - appearance_counter() counts all appearances. It iterates over every movie in actors_in_movies.
-# - appearances_in_top(top_1000) filters movies: It uses top_1000, which is derived from top_1000_movies.
-# If top_1000 (a set of movie titles) does not perfectly match the keys in actors_in_movies (also movie titles), some
-# movies will not be included in the count. For example, additional spaces or case mismatches can cause this issue.
+# def appearances_in_top(top_x):          #WRONG DICT. passing into the function! mismatchaed dictionaries
+#     actor_appearances = {}
+#
+#     for movie, details in actors_in_movies.items():         #iterates over movies (items) in actors_in_movies (dict)
+#
+#         if movie in top_x:                                  #checks if current movie is within specified top_x range
+#             actor_name = details['actors']
+#
+#             actor_appearances[actor_name] = actor_appearances.get(actor_name,1) + 1
+#             #creates counter (def.1) when new actor_name appears + increments it when mentioned in actor_appearances
+#
+#     top_actor = max(actor_appearances, key=actor_appearances.get)
+#     top_count = actor_appearances[top_actor]
+#     print(f"The actor who took part in most films in this Top Films is {top_actor} with {top_count} films.")
 
 
 
-#__________________________________QUESTION 2: median of actors per film_______________________________________________#
 
 
-#__________________________________QUESTION 3: actor who worked with most actors_______________________________________#
+
+#________________________________QUESTION 1: actor in most films_______________________________________________________#
+
+
+#________________________________QUESTION 2: median of actors per film_________________________________________________#
+
+
+#________________________________QUESTION 3: actor who worked with most actors_________________________________________#
