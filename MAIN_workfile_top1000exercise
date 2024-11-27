@@ -13,70 +13,43 @@ from actors_data import actors_in_movies
 
 top_1000_with_actors = {}
 
-for position, movie_title in top_1000_movies.items():                #iterate over top_1000_movies dictionary
-
-    if not movie_title.strip():                                      #skip positions with empty movie titles
-        print(f"Position {position} has an empty movie title and will be skipped.")
-        continue
-
-    if movie_title in actors_in_movies:                              #check if movie exists in actors_in_movies
-        movie_data = actors_in_movies[movie_title]                   #get the corresponding movie data (actors and year)
-        top_1000_with_actors[position] = {                           #add to the new dictionary the following:
-            'title': movie_title,                                                           #the movie title
-            'actors': movie_data['actors'],                                                 #the list of actors
-            'released': movie_data['released']                                              #the release year
-        }
-
-    else:                                                           #this never prints = all titles are in the dict.
-        print(f"Position {position}: Movie '{movie_title}' not found in actors_in_movies.")
+for position, movie_title in top_1000_movies.items():
+    movie_title_lower = movie_title.strip().lower()
+    top_1000_with_actors[position] = {
+        'title': movie_title,
+        'actors': actors_in_movies.get(movie_title_lower, {}).get('actors', []),
+        'released': actors_in_movies.get(movie_title_lower, {}).get('released', None)
+    }
 
 
-# ISSUE: If the first few positions (e.g., 1 to 37) have empty titles, they are skipped during the merging process, as
-#the merging logic explicitly avoids adding entries with no match. This creates gaps, leading to only valid data
-#from position 106 onwards being printed.
-
-# >changed code above, adding an if block that allows to skip positions with empty film titles
-# >tested the result with the print below
-for position, data in top_1000_with_actors.items():
-    title = data['title']
-    actors = ", ".join(data['actors'])                                     #list of actors into a comma-separated string
-    release_year = data['released']
-
-    print(f"Position: {position}")
-    print(f"Title: {title}")
-    print(f"Actors: {actors}")
-    print(f"Year: {release_year}")
-    print("-" * 40)                                                            #separator for readability
-
-#  still wrong! only prints from  position 35 onwards, but why? I told the for loop to print whenever it skips a line,
-# but it's not printing that sentence despite the empty lines. ChatGPT says it's either because:
-# - no titles are actually empty, despite looking that way to me;
-# - code never reaches that block
-# - unexpected formatting in the titles
-
-
+# for position, movie_data in top_1000_with_actors.items():                             #debugging loop
+#     print(f"Position: {position}")
+#     print(f"Title: {movie_data['title']}")
+#     print(f"Actors: {', '.join(movie_data['actors'])}")
+#     print(f"Year: {movie_data['released']}")
+#     print("-" * 40)
 
 
 
 #___________________________________1 FUNCTION: getting a Top X________________________________________________________#
 
-# def get_top_x(top_x):
-#     top_x_movies = {}
-#
-#     for pos,movie in top_1000_movies.items():
-#         if int(pos) <= top_x:
-#             top_x_movies[pos] = movie
-#     return top_x_movies
-#
-#     #ALTERNATIVE WAY - LIST COMPREHENSION, writing everything on the same line, writing what you want to return first
-#     #return {pos:movie for pos, movie in top_1000_movies.items() if int(pos) <= top_x}
-#
-# top_100 = get_top_x(100)
-# top_200 = get_top_x(200)
-# top_400 = get_top_x(400)
-# top_600 = get_top_x(600)
-# top_800 = get_top_x(800)
-# top_1000 = get_top_x(1000)
+def get_top_x(top_x):
+    top_x_movies = {}
+
+    for pos,movie in top_1000_movies.items():
+        if int(pos) <= top_x:
+            top_x_movies[pos] = movie
+    return top_x_movies
+
+    #ALTERNATIVE WAY - LIST COMPREHENSION, writing everything on the same line, writing what you want to return first
+    #return {pos:movie for pos, movie in top_1000_movies.items() if int(pos) <= top_x}
+
+top_100 = get_top_x(100)
+top_200 = get_top_x(200)
+top_400 = get_top_x(400)
+top_600 = get_top_x(600)
+top_800 = get_top_x(800)
+top_1000 = get_top_x(1000)
 
 #______________________2 FUNCTION: getting a counter for actors' appearances in films__________________________________#
 
